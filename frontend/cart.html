@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AAGAM — Cart & Coupons Demo</title>
+<style>
+  body { background-color:#ccff99; margin: 0; font-family: Arial, sans-serif; padding: 24px; color:#111; }
+  .container { max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.96); padding: 20px; border-radius: 12px; box-shadow: 0 6px 18px rgba(10,10,20,0.06); }
+  h1{ margin:0 0 16px 0; font-size:24px; }
+  .cart-row { display:flex; gap:20px; align-items:flex-start; }
+  .products { flex:2; }
+  .summary { flex:1; border-left:1px solid #eee; padding-left:20px; }
+  .product { display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px dashed #eee; }
+  .product img { width:64px; height:64px; object-fit:cover; border-radius:8px; background:#f1f1f1; }
+  .product .name { font-weight:600; }
+  .qty { display:flex; gap:6px; align-items:center; }
+  button { cursor:pointer; }
+  .coupon-box { margin:12px 0; display:flex; gap:8px; }
+  .coupon-box input { flex:1; padding:10px; border-radius:8px; border:1px solid #ddd; }
+  .coupon-list { margin-top:12px; }
+  .coupon-card { display:flex; justify-content:space-between; background:#fafafa; padding:8px 12px; border-radius:8px; margin-bottom:8px; border:1px solid #eee; }
+  .applied { color: #0b7a3b; font-weight:700; }
+  .error { color:#c72b2b; }
+  .small { font-size:13px; color:#666; }
+  .earn-buttons{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;}
+  .earn-buttons button{ padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#fff; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1><img src="https://raw.githubusercontent.com/chavitinibalaji/aagam-assets/main/IMG_AAGAM.png" alt="AAGAM Store Logo" class="logo" width="100" height="100"> Cart & Coupons — AAGAM (Demo)</h1>
+
+    <div class="cart-row">
+      <div class="products">
+        <div class="product" data-id="p1">
+          <img src="https://via.placeholder.com/150?text=Milk" alt="Milk">
+          <div>
+            <div class="name">Milk 500ml</div>
+            <div class="small">₹28 each</div>
+            <div class="qty"><button onclick="changeQty('p1', -1)">-</button> <span id="qty-p1">1</span> <button onclick="changeQty('p1', 1)">+</button></div>
+          </div>
+        </div>
+
+        <div class="product" data-id="p2">
+          <img src="https://via.placeholder.com/150?text=Bread" alt="Bread">
+          <div>
+            <div class="name">Brown Bread</div>
+            <div class="small">₹45 each</div>
+            <div class="qty"><button onclick="changeQty('p2', -1)">-</button> <span id="qty-p2">1</span> <button onclick="changeQty('p2', 1)">+</button></div>
+          </div>
+        </div>
+
+        <div class="product" data-id="p3">
+          <img src="https://via.placeholder.com/150?text=Eggs" alt="Eggs">
+          <div>
+            <div class="name">Eggs (6 pcs)</div>
+            <div class="small">₹39 each</div>
+            <div class="qty"><button onclick="changeQty('p3', -1)">-</button> <span id="qty-p3">1</span> <button onclick="changeQty('p3', 1)">+</button></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <strong>Available Demo Coupons:</strong>
+          <div class="coupon-list" id="couponList"></div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <strong>Earn coupons (simulate):</strong>
+          <div class="small">Click these to simulate user earning a coupon / points (for testing).</div>
+          <div class="earn-buttons">
+            <button onclick="simulateReferral()">Simulate Referral (+₹50 coupon)</button>
+            <button onclick="simulateWallet()">Simulate Wallet Offer (+₹25 wallet coupon)</button>
+            <button onclick="simulateLoyalty()">Add Loyalty Points (+20 pts)</button>
+            <button onclick="simulateFirstOrderReset()">Reset First Order (for testing)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary">
+        <h3>Bill summary</h3>
+        <div class="small">Item total: <span id="itemTotal">—</span></div>
+        <div class="small">Delivery fee: <span id="deliveryFee">₹30</span></div>
+
+        <div class="coupon-box">
+          <input id="couponInput" placeholder="Enter coupon code (e.g. FIRST20, SAVE50)" />
+          <button onclick="applyCouponFromInput()">Apply</button>
+        </div>
+
+        <div id="couponMessage" class="small"></div>
+
+        <div style="margin-top:12px; border-top:1px solid #eee; padding-top:12px;">
+          <div class="small">Discount: <span id="discountVal">₹0</span></div>
+          <div class="small">Tax (GST 5%): <span id="taxVal">₹0</span></div>
+          <div style="font-weight:700; margin-top:8px;">To Pay: <span id="totalPay">₹0</span></div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <strong>You (user state):</strong>
+          <div class="small" id="userState"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr style="margin:24px 0">
+
+    <div class="small">This demo uses <strong>localStorage</strong> to simulate user data (first-order, earned coupons, loyalty points). Replace localStorage calls with real backend endpoints (API) when ready.</div>
+  </div>
+
+<script>
+/* ----------------------------
+  DEMO DATA (replace with backend data)
+   - coupons: list of coupons available
+   - products: product prices and cart quantities
+-----------------------------*/
+
+const coupons = [
+  { code:'SAVE50', type:'flat', amount:50, minOrder:200, expires:'2026-12-31', description:'Flat ₹50 off on orders >= ₹200', stackable:false },
+  { code:'FIRST20', type:'percent', percent:20, minOrder:0, expires:'2026-12-31', description:'20% off for first order', firstOrder:true, stackable:false },
+  { code:'FREEDEL', type:'free_delivery', minOrder:0, expires:'2026-12-31', description:'Free delivery' },
+  { code:'WALLET25', type:'flat', amount:25, minOrder:100, expires:'2026-12-31', walletOnly:true, description:'₹25 off with wallet payment' },
+  { code:'REF50', type:'flat', amount:50, minOrder:0, expires:'2026-12-31', refGiven:true, description:'Referral reward: ₹50 off' },
+  { code:'LOYAL10', type:'flat', amount:10, minOrder:0, expires:'2026-12-31', loyaltyReq:20, description:'Redeem 20 points to get ₹10 off' },
+  { code:'FESTIVE10', type:'percent', percent:10, minOrder:150, expires:'2026-12-31', description:'10% off on festival' }
+];
+
+const products = {
+  p1: { name:'Milk 500ml', price:28, qty:1 },
+  p2: { name:'Brown Bread', price:45, qty:1 },
+  p3: { name:'Eggs (6 pcs)', price:39, qty:1 }
+};
+
+const BASE_DELIVERY_FEE = 30;
+const GST_RATE = 0.05;
+
+function getUserState(){
+  return {
+    firstOrder: JSON.parse(localStorage.getItem('bb_user_firstOrder') || 'true'),
+    referralCoupons: JSON.parse(localStorage.getItem('bb_user_referral') || '[]'),
+    walletCoupons: JSON.parse(localStorage.getItem('bb_user_walletOffers') || '[]'),
+    loyaltyPoints: Number(localStorage.getItem('bb_user_loyaltyPoints') || 0),
+    appliedCoupon: localStorage.getItem('bb_user_appliedCoupon') || null
+  };
+}
+function saveUserState(state){
+  localStorage.setItem('bb_user_firstOrder', JSON.stringify(state.firstOrder));
+  localStorage.setItem('bb_user_referral', JSON.stringify(state.referralCoupons));
+  localStorage.setItem('bb_user_walletOffers', JSON.stringify(state.walletCoupons));
+  localStorage.setItem('bb_user_loyaltyPoints', String(state.loyaltyPoints));
+  if(state.appliedCoupon) localStorage.setItem('bb_user_appliedCoupon', state.appliedCoupon);
+  else localStorage.removeItem('bb_user_appliedCoupon');
+}
+
+function initUI(){
+  const couponListEl = document.getElementById('couponList');
+  couponListEl.innerHTML = '';
+  coupons.forEach(c=>{
+    const div = document.createElement('div');
+    div.className = 'coupon-card';
+    div.innerHTML = `<div>
+        <div style="font-weight:700">${c.code}</div>
+        <div class="small">${c.description} ${c.minOrder? '• Min ₹'+c.minOrder : ''} ${c.expires ? '• Expires: '+c.expires : ''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button onclick="applyCouponFromList('${c.code}')">Apply</button>
+        <button onclick="copyToClipboard('${c.code}')">Copy</button>
+      </div>`;
+    couponListEl.appendChild(div);
+  });
+
+  updateCartUI();
+  updateUserStateUI();
+}
+
+function changeQty(pid, delta){
+  const p = products[pid];
+  if(!p) return;
+  p.qty = Math.max(0, p.qty + delta);
+  document.getElementById('qty-'+pid).innerText = p.qty;
+  updateCartUI();
+}
+
+function calculateItemTotal(){
+  let total = 0;
+  for(const k in products) total += products[k].price * products[k].qty;
+  return total;
+}
+
+function findCoupon(code){
+  return coupons.find(c => c.code.toUpperCase() === code.toUpperCase());
+}
+
+function validateCoupon(c, userState, itemTotal, paymentMethod){
+  const now = new Date();
+  if(!c) return { ok:false, message:'Coupon does not exist' };
+
+  if(c.expires){
+    const exp = new Date(c.expires + 'T23:59:59');
+    if(now > exp) return { ok:false, message:'Coupon has expired' };
+  }
+
+  if(c.minOrder && itemTotal < c.minOrder) return { ok:false, message:`Minimum order ₹${c.minOrder} required` };
+
+  if(c.firstOrder && !userState.firstOrder) return { ok:false, message:'Coupon valid only for first order' };
+
+  if(c.walletOnly && paymentMethod !== 'wallet' && !(userState.walletCoupons || []).includes(c.code)){
+    return { ok:false, message:'Coupon valid only with wallet payment or wallet offer assigned' };
+  }
+
+  if(c.refGiven && !(userState.referralCoupons || []).includes(c.code)){
+    return { ok:false, message:'Referral coupon not assigned to this user' };
+  }
+
+  if(c.loyaltyReq && (userState.loyaltyPoints || 0) < c.loyaltyReq){
+    return { ok:false, message:`You need ${c.loyaltyReq} loyalty points to redeem` };
+  }
+
+  let discount = 0;
+  let newDeliveryFee = BASE_DELIVERY_FEE;
+  if(c.type === 'flat') discount = c.amount || 0;
+  else if(c.type === 'percent') discount = Math.round((c.percent/100) * itemTotal * 100)/100;
+  else if(c.type === 'free_delivery') newDeliveryFee = 0;
+
+  discount = Math.min(discount, itemTotal);
+
+  return { ok:true, message:'Coupon applied', discount, newDeliveryFee, appliedCouponObj: c };
+}
+
+function applyCouponFromInput(){
+  const code = document.getElementById('couponInput').value.trim();
+  if(!code) return showMessage('Enter coupon code', true);
+  applyCoupon(code);
+}
+
+function applyCouponFromList(code){
+  document.getElementById('couponInput').value = code;
+  applyCoupon(code);
+}
+
+function applyCoupon(code){
+  const user = getUserState();
+  const itemTotal = calculateItemTotal();
+  const paymentMethod = user.walletSelected ? 'wallet' : 'other';
+  const coupon = findCoupon(code);
+  const result = validateCoupon(coupon, user, itemTotal, paymentMethod);
+  if(!result.ok) return showMessage(result.message, true);
+
+  if(result.appliedCouponObj.loyaltyReq){
+    user.loyaltyPoints = Math.max(0, user.loyaltyPoints - result.appliedCouponObj.loyaltyReq);
+  }
+
+  user.appliedCoupon = result.appliedCouponObj.code;
+  saveUserState(user);
+  showMessage(`Applied ${result.appliedCouponObj.code} — ${result.message}`, false);
+  updateCartUI();
+}
+
+function updateCartUI(){
+  const itemTotal = calculateItemTotal();
+  const user = getUserState();
+  let deliveryFee = BASE_DELIVERY_FEE;
+  let discount = 0;
+  let appliedCoupon = user.appliedCoupon ? findCoupon(user.appliedCoupon) : null;
+
+  if(appliedCoupon){
+    const res = validateCoupon(appliedCoupon, user, itemTotal, user.walletSelected ? 'wallet' : 'other');
+    if(res.ok){
+      discount = res.discount;
+      deliveryFee = res.newDeliveryFee;
+    } else {
+      user.appliedCoupon = null;
+      saveUserState(user);
+      appliedCoupon = null;
+      document.getElementById('couponMessage').innerText = '';
+    }
+  }
+
+  const taxable = Math.max(0, itemTotal - discount);
+  const tax = Math.round(taxable * GST_RATE * 100)/100;
+
+  const pay = Math.round((taxable + tax + deliveryFee) * 100)/100;
+
+  document.getElementById('itemTotal').innerText = `₹${itemTotal.toFixed(2)}`;
+  document.getElementById('deliveryFee').innerText = deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`;
+  document.getElementById('discountVal').innerText = `- ₹${discount.toFixed(2)}`;
+  document.getElementById('taxVal').innerText = `₹${tax.toFixed(2)}`;
+  document.getElementById('totalPay').innerText = `₹${pay.toFixed(2)}`;
+
+  const cm = document.getElementById('couponMessage');
+  if(appliedCoupon){
+    cm.innerHTML = `<span class="applied">${appliedCoupon.code} applied</span> <div class="small">${appliedCoupon.description}</div>`;
+  } else {
+    cm.innerHTML = `<span class="small">No coupon applied</span>`;
+  }
+
+  updateUserStateUI();
+}
+
+function showMessage(msg, isError){
+  const el = document.getElementById('couponMessage');
+  el.innerHTML = `<div class="${isError ? 'error' : 'applied'}">${msg}</div>`;
+  setTimeout(updateCartUI, 2500);
+}
+
+function copyToClipboard(text){
+  navigator.clipboard?.writeText(text).then(()=> showMessage('Code copied to clipboard', false)).catch(()=> showMessage('Unable to copy', true));
+}
+
+function updateUserStateUI(){
+  const u = getUserState();
+  const el = document.getElementById('userState');
+  el.innerHTML = `
+    First order: <strong>${u.firstOrder ? 'Yes' : 'No'}</strong><br>
+    Referral coupons assigned: <strong>${u.referralCoupons.join(', ') || '—'}</strong><br>
+    Wallet coupons assigned: <strong>${u.walletCoupons.join(', ') || '—'}</strong><br>
+    Loyalty points: <strong>${u.loyaltyPoints}</strong><br>
+    Applied coupon: <strong>${u.appliedCoupon || '—'}</strong>
+  `;
+}
+
+function simulateReferral(){
+  const u = getUserState();
+  if(!u.referralCoupons.includes('REF50')) u.referralCoupons.push('REF50');
+  saveUserState(u);
+  showMessage('Referral coupon REF50 assigned to user', false);
+  updateUserStateUI();
+}
+
+function simulateWallet(){
+  const u = getUserState();
+  if(!u.walletCoupons.includes('WALLET25')) u.walletCoupons.push('WALLET25');
+  saveUserState(u);
+  showMessage('Wallet coupon WALLET25 assigned to user', false);
+  updateUserStateUI();
+}
+
+function simulateLoyalty(){
+  const u = getUserState();
+  u.loyaltyPoints = (u.loyaltyPoints || 0) + 20;
+  saveUserState(u);
+  showMessage('Added 20 loyalty points', false);
+  updateUserStateUI();
+}
+
+function simulateFirstOrderReset(){
+  const u = getUserState();
+  u.firstOrder = true; // mark user as first order for testing
+  saveUserState(u);
+  showMessage('User set to first order (for testing)', false);
+  updateUserStateUI();
+}
+
+function checkout(){
+  const u = getUserState();
+  if(u.appliedCoupon){
+    const c = findCoupon(u.appliedCoupon);
+    if(c && c.firstOrder) u.firstOrder = false;
+    if(c && c.refGiven){
+      u.referralCoupons = u.referralCoupons.filter(x => x !== c.code);
+    }
+    if(c && c.walletOnly){
+      u.walletCoupons = u.walletCoupons.filter(x => x !== c.code);
+    }
+  }
+  saveUserState(u);
+  showMessage('Checkout simulated — user state updated (first order/consumed coupons).', false);
+  updateCartUI();
+}
+
+initUI();
+
+window.checkout = checkout;
+window.applyCoupon = applyCoupon;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AAGAM - Products</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1><img src="https://raw.githubusercontent.com/chavitinibalaji/aagam-assets/main/IMG_AAGAM.png" alt="AAGAM Store Logo" class="logo" width="100" height="100"> AAGAM</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/products.html">Products</a>
+      <a href="/cart.html">Cart</a>
+      <a href="/login.html">Login</a>
+      <a href="/admin.html">Admin</a>
+    </nav>
+  </header>
+  <main>
+    <section class="controls">
+      <div style="position:relative">
+        <input id="search" placeholder="Search products...">
+        <div id="search-suggestions" class="search-suggestions" style="display:none"></div>
+      </div>
+      <select id="category">
+        <option value="">All</option>
+        <option>Fruits</option>
+        <option>Vegetables</option>
+        <option>Dairy</option>
+        <option>Bakery</option>
+      </select>
+    </section>
+    <section id="products" class="grid"></section>
+  </main>
+  <script src="/js/products.js"></script>
+</body>
+</html>
