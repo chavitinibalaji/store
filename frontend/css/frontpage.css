@@ -25,3 +25,24 @@
 .card img{width:100%;height:140px;object-fit:cover;border-radius:8px}
 .card h4{font-size:15px;margin:8px 0}
 .card .price{font-weight:700;margin-top:6px}
+
+/* Large centered search */
+.search-large{flex:1;display:flex;gap:12px;max-width:720px;margin:0 auto;align-items:center}
+.search-large input{flex:1;padding:14px 16px;border-radius:12px;border:1px solid #e6e6e6;font-size:16px}
+.search-large .btn-primary{padding:12px 18px;border-radius:12px}
+
+/* Category cards */
+.categories{display:flex;gap:12px;padding:12px;overflow:auto;border-bottom:1px solid #f1f1f1;background:transparent}
+.category-card{display:flex;flex-direction:column;align-items:center;min-width:110px;padding:12px;gap:8px;text-align:center;background:rgba(255,255,255,0.92);border-radius:12px;border:1px solid #eee;text-decoration:none;color:inherit}
+.category-card img{width:64px;height:64px;border-radius:12px;object-fit:cover}
+.category-card div{font-size:13px;color:#2d4f1f}
+
+/* Promo banners */
+.promo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.promo-card{display:block;border-radius:16px;overflow:hidden;min-height:120px;color:#fff;text-decoration:none;position:relative}
+.promo-left{background:linear-gradient(90deg,#ff7a7a,#ffb86b);padding:20px}
+.promo-right{background:linear-gradient(90deg,#7a2fe3,#b78cf3);padding:20px}
+.promo-inner h3{margin:0 0 8px;font-size:20px;color:#fff}
+.promo-inner p{margin:0;color:rgba(255,255,255,0.92)}
+
+@media (max-width:800px){.promo-row{grid-template-columns:1fr}.search-large{max-width:100%}.category-card{min-width:86px;padding:8px}}
