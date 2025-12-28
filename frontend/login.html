@@ -2,218 +2,150 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AAGAM - Login</title>
-  <link rel="stylesheet" href="/css/style.css">
+
   <style>
-    .login-container { background-color: #ffffff; border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); max-width: 400px; margin: 60px auto; }
-    .login-step { display: none; }
-    .login-step.active { display: block; }
-    .login-header { text-align: center; margin-bottom: 24px; }
-    .login-header h2 { color: #2d4f1f; margin: 0; }
-    .method-selector { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-    .method-btn { flex: 1; min-width: 100px; padding: 10px; border: 2px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
-    .method-btn.active { border-color: #8b2be2; background: #f5f0ff; color: #8b2be2; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
-    .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-    .form-group button { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: 0; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; }
-    .form-group button:hover { filter: brightness(0.95); }
-    .message { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 14px; text-align: center; }
-    .message.success { background: #d4edda; color: #155724; }
-    .message.error { background: #f8d7da; color: #721c24; }
-    .toggle-link { text-align: center; margin-top: 16px; font-size: 14px; }
-    .toggle-link a { color: #8b2be2; cursor: pointer; text-decoration: underline; }
-    .otp-timer { text-align: center; margin-top: 8px; font-size: 13px; color: #666; }
+    body { margin:0; font-family: Arial, sans-serif; background:#f4f6f8; }
+    header { background:#ccff99; padding:15px 30px; }
+    header h1 { display:flex; align-items:center; gap:10px; margin:0; }
+    nav { display:flex; gap:30px; margin-top:10px; }
+    nav a { text-decoration:none; font-weight:600; color:#000; }
+
+    .login-box {
+      background:#fff; max-width:400px; margin:70px auto;
+      padding:30px; border-radius:16px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.12);
+    }
+
+    h2 { text-align:center; margin-bottom:20px; }
+    .form-group { margin-bottom:16px; }
+    label { display:block; margin-bottom:6px; font-weight:600; }
+    input {
+      width:100%; padding:10px; font-size:14px;
+      border:1px solid #ccc; border-radius:6px;
+    }
+
+    button {
+      width:100%; padding:14px;
+      background:#8b2be2; color:#fff;
+      border:none; border-radius:12px;
+      font-weight:600; cursor:pointer;
+    }
+
+    .message {
+      margin-top:12px; padding:10px;
+      border-radius:6px; text-align:center;
+      display:none;
+    }
+    .success { background:#d4edda; color:#155724; }
+    .error { background:#f8d7da; color:#721c24; }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1><img src="https://raw.githubusercontent.com/chavitinibalaji/aagam-assets/main/IMG_AAGAM.png" alt="AAGAM Store Logo" class="logo" width="100" height="100"> AAGAM</h1>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/frontpage.html">Shop</a>
-      <a href="/cart.html">Cart</a>
-    </nav>
-  </header>
 
-  <div class="login-container">
-    <!-- Step 1: Email/Mobile Selection -->
-    <div class="login-step active" id="contact-step">
-      <div class="login-header">
-        <h2>Login with OTP</h2>
-        <p>Choose your preferred method</p>
-      </div>
-      <div class="method-selector">
-        <button class="method-btn active" onclick="selectMethod('email')">📧 Email</button>
-        <button class="method-btn" onclick="selectMethod('mobile')">📱 Mobile</button>
-      </div>
-      
-      <!-- Email Input -->
-      <form id="email-form">
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-          <button type="submit">Send OTP</button>
-        </div>
-      </form>
+<header>
+  <h1>
+    <img src="https://raw.githubusercontent.com/chavitinibalaji/aagam-assets/main/IMG_AAGAM.png" width="70">
+    AAGAM
+  </h1>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/frontpage.html">Shop</a>
+    <a href="/cart.html">Cart</a>
+  </nav>
+</header>
 
-      <!-- Mobile Input -->
-      <form id="mobile-form" style="display:none">
-        <div class="form-group">
-          <label for="mobile">Mobile Number</label>
-          <input type="tel" id="mobile" placeholder="+91 98765 43210" required>
-        </div>
-        <div class="form-group">
-          <button type="submit">Send OTP</button>
-        </div>
-      </form>
+<div class="login-box">
 
-      <div id="contact-message" class="message" style="display:none"></div>
+  <!-- STEP 1: MOBILE -->
+  <div id="step-mobile">
+    <h2>Login with Mobile OTP</h2>
+
+    <div class="form-group">
+      <label>Mobile Number</label>
+      <input type="tel" id="mobile" placeholder="+91XXXXXXXXXX" required>
     </div>
 
-    <!-- Step 2: OTP Verification -->
-    <div class="login-step" id="otp-step">
-      <div class="login-header">
-        <h2>Verify OTP</h2>
-        <p id="otp-contact" style="color:#666;font-size:14px"></p>
-      </div>
-      <form id="otp-form">
-        <div class="form-group">
-          <label for="otp">Enter OTP (6 digits)</label>
-          <input type="text" id="otp" placeholder="000000" maxlength="6" required>
-        </div>
-        <div class="form-group">
-          <button type="submit">Verify & Login</button>
-        </div>
-      </form>
-      <div id="otp-message" class="message" style="display:none"></div>
-      <div class="otp-timer" id="otp-timer"></div>
-      <div class="toggle-link">
-        <a onclick="switchToContact()">← Back</a>
-      </div>
-    </div>
-
-    <div style="margin-top:24px;text-align:center;border-top:1px solid #eee;padding-top:16px">
-    </div>
+    <button onclick="sendOTP()">Send OTP</button>
+    <div id="mobile-msg" class="message"></div>
   </div>
 
-  <script>
-  let contactIdentifier = ''; // email or mobile
-  let contactType = 'email'; // 'email' or 'mobile'
-  let otpExpiryTime = 0;
+  <!-- STEP 2: OTP -->
+  <div id="step-otp" style="display:none">
+    <h2>Verify OTP</h2>
 
-  function selectMethod(method){
-    contactType = method;
-    document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById('email-form').style.display = method === 'email' ? 'block' : 'none';
-    document.getElementById('mobile-form').style.display = method === 'mobile' ? 'block' : 'none';
-  }
+    <div class="form-group">
+      <label>Enter OTP</label>
+      <input type="text" id="otp" maxlength="6">
+    </div>
 
-  function switchToContact(){ showStep('contact'); }
-  function showStep(step){
-    document.querySelectorAll('.login-step').forEach(s=>s.classList.remove('active'));
-    document.getElementById(step+'-step').classList.add('active');
-  }
+    <button onclick="verifyOTP()">Verify & Login</button>
+    <div id="otp-msg" class="message"></div>
+  </div>
 
-  function showMessage(stepName, msg, isError){
-    const el = document.getElementById(stepName + '-message');
+</div>
+
+<script>
+  let phoneNumber = '';
+
+  function showMessage(id, msg, error){
+    const el = document.getElementById(id);
     el.textContent = msg;
-    el.className = 'message ' + (isError ? 'error' : 'success');
+    el.className = 'message ' + (error ? 'error' : 'success');
     el.style.display = 'block';
-    if (!isError) setTimeout(() => el.style.display = 'none', 4000);
   }
 
-  // Email form: request OTP
-  document.getElementById('email-form').addEventListener('submit', async e=>{
-    e.preventDefault();
-    contactIdentifier = document.getElementById('email').value.trim();
-    if (!contactIdentifier) return showMessage('contact', 'Enter email', true);
-    try{
-      const res = await fetch('/api/auth/send-otp', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email: contactIdentifier }) });
-      const j = await res.json();
-      if (j.ok) {
-        otpExpiryTime = Date.now() + 10 * 60 * 1000;
-        showMessage('contact', 'OTP sent! Check your email (or console for demo)', false);
-        setTimeout(() => { showStep('otp'); document.getElementById('otp-contact').textContent = 'OTP sent to ' + contactIdentifier; startOtpTimer(); }, 1500);
-      } else {
-        showMessage('contact', j.error || 'Failed to send OTP', true);
-      }
-    }catch(e){ showMessage('contact', 'Error: ' + e.message, true); }
-  });
-
-  // Mobile form: request OTP
-  document.getElementById('mobile-form').addEventListener('submit', async e=>{
-    e.preventDefault();
-    contactIdentifier = document.getElementById('mobile').value.trim();
-    if (!contactIdentifier) return showMessage('contact', 'Enter mobile number', true);
-    try{
-      const res = await fetch('/api/auth/send-otp', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ phone: contactIdentifier }) });
-      const j = await res.json();
-      if (j.ok) {
-        otpExpiryTime = Date.now() + 10 * 60 * 1000;
-        showMessage('contact', 'OTP sent to your mobile (or console for demo)', false);
-        setTimeout(() => { showStep('otp'); document.getElementById('otp-contact').textContent = 'OTP sent to ' + contactIdentifier; startOtpTimer(); }, 1500);
-      } else {
-        showMessage('contact', j.error || 'Failed to send OTP', true);
-      }
-    }catch(e){ showMessage('contact', 'Error: ' + e.message, true); }
-  });
-
-  // OTP form: verify OTP
-  document.getElementById('otp-form').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const otp = document.getElementById('otp').value.trim();
-    if (!otp || otp.length !== 6) return showMessage('otp', 'Enter 6-digit OTP', true);
-    try{
-      const payload = { otp };
-      if (contactType === 'email') payload.email = contactIdentifier;
-      else if (contactType === 'mobile') payload.phone = contactIdentifier;
-      
-      const res = await fetch('/api/auth/verify-otp', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-      const j = await res.json();
-      if (j.ok || j.token) {
-        localStorage.setItem('token', j.token);
-        localStorage.setItem('user', JSON.stringify({ name: j.name, email: j.email, isAdmin: j.isAdmin }));
-        showMessage('otp', 'Login successful!', false);
-        setTimeout(() => { window.location = '/frontpage.html'; }, 1500);
-      } else {
-        showMessage('otp', j.error || 'Invalid OTP', true);
-      }
-    }catch(e){ showMessage('otp', 'Error: ' + e.message, true); }
-  });
-
-  // Password form: traditional login
-  // OTP expiry timer
-  function startOtpTimer(){
-    const timer = setInterval(() => {
-      const remaining = Math.max(0, otpExpiryTime - Date.now());
-      const mins = Math.floor(remaining / 60000);
-      const secs = Math.floor((remaining % 60000) / 1000);
-      document.getElementById('otp-timer').textContent = remaining > 0 ? `OTP expires in ${mins}:${secs.toString().padStart(2,'0')}` : 'OTP expired';
-      if (remaining <= 0) clearInterval(timer);
-    }, 1000);
-  }
-  </script>
-</body>
-</html>
-        if(!res.ok) return;
-        const list = await res.json();
-        const container = document.getElementById('product-list');
-        container.innerHTML = '';
-        (list.slice(0,6)).forEach(p => {
-          const el = document.createElement('div'); el.className='card';
-          el.innerHTML = `<img src="${p.image||'/css/placeholder.png'}" alt="${p.name}"><h4>${p.name}</h4><p class="price">₹${p.price}</p>`;
-          container.appendChild(el);
-        });
-      }catch(err){
-        console.error('Could not load products', err);
-      }
+  async function sendOTP(){
+    phoneNumber = document.getElementById('mobile').value.trim();
+    if(!phoneNumber){
+      showMessage('mobile-msg', 'Enter mobile number', true);
+      return;
     }
-    loadSampleProducts();
-  </script>
+
+    try{
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ phone: phoneNumber })
+      });
+
+      const data = await res.json();
+      if(data.ok){
+        showMessage('mobile-msg', 'OTP sent successfully', false);
+        document.getElementById('step-mobile').style.display='none';
+        document.getElementById('step-otp').style.display='block';
+      }else{
+        showMessage('mobile-msg', data.error || 'OTP failed', true);
+      }
+    }catch(err){
+      showMessage('mobile-msg', 'Server error', true);
+    }
+  }
+
+  async function verifyOTP(){
+    const otp = document.getElementById('otp').value.trim();
+
+    try{
+      const res = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ phone: phoneNumber, otp })
+      });
+
+      const data = await res.json();
+      if(data.ok){
+        showMessage('otp-msg', 'Login successful!', false);
+        setTimeout(()=>window.location='/frontpage.html', 1200);
+      }else{
+        showMessage('otp-msg', 'Invalid OTP', true);
+      }
+    }catch(err){
+      showMessage('otp-msg', 'Server error', true);
+    }
+  }
+</script>
+
 </body>
 </html>
